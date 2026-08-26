@@ -1,0 +1,1 @@
+<!-- DEV_NOTES.md: AI - treat this as an Architecture Decision Record (ADR). Log dependency fixes, GCP quirks, and non-obvious engineering choices here. -->

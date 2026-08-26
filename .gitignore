@@ -1,0 +1,39 @@
+# Environments
+.venv/
+env/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# IDEs & Tools
+.vscode/
+.idea/
+.cursor/
+.windsurf/
+
+# OS Generated
+.DS_Store
+Thumbs.db
+
+# Secrets & Local Config (GCP auth uses ADC — never commit credentials)
+.env
+.env.*
+
+# Packaging Artifacts
+*.egg-info/
+build/
+dist/
+
+# Logs
+*.log

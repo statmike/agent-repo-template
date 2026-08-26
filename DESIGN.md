@@ -1,0 +1,1 @@
+<!-- DESIGN.md: AI - generate the formal PRD and Mermaid architectures here based on IDEA.md. Wait for human approval before coding. -->

@@ -1,0 +1,1 @@
+<!-- IDEA.md: Human - write your raw project ideas, goals, and vision here. The AI will read this to generate the DESIGN.md PRD. -->
