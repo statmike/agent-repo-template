@@ -83,6 +83,35 @@ If either points to "general" or "mine," it's environment-level and does **not**
 
 **Project-level config → this template carries a thin slice only:** enforcement of the golden rules (hooks/permissions) and *example declarations* of project-intrinsic MCP servers/skills. Credentials always stay in your environment (see [GCP authentication](#2-gcp-authentication-adc-only)).
 
+### How the two levels combine at runtime
+
+The two levels are not either/or — Claude Code **loads every level and combines them** on each run. It uses two different rules depending on the kind of setting:
+
+- **Override** — for single scalar values (`model`, `theme`, `effortLevel`), the most specific level that sets it wins.
+- **Merge (union)** — for additive resources, every level's contributions apply *together*: `permissions` (allow/deny/ask), `hooks`, `skills`, `agents`, MCP servers (`.mcp.json`), and `CLAUDE.md` memory files.
+
+**Precedence (highest → lowest)** — when a scalar is set at more than one level, higher wins:
+
+| # | Level | Path |
+|---|-------|------|
+| 1 | Enterprise / managed policy | `/etc/claude-code/managed-settings.json` (Linux) · `/Library/Application Support/ClaudeCode/managed-settings.json` (macOS) |
+| 2 | Command-line flag | `claude --settings '{…}'` |
+| 3 | Project-local (personal, per-repo) | `<repo>/.claude/settings.local.json` *(git-ignored)* |
+| 4 | **Project-shared (this template)** | `<repo>/.claude/settings.json` *(committed)* |
+| 5 | User / environment (yours) | `~/.claude/settings.json` |
+
+The practical upshot for this template: because `permissions` and `hooks` **merge** and a `deny` rule **always wins regardless of level**, the guardrails this repo ships in `.claude/settings.json` apply to everyone who clones it — and a developer's personal `~/.claude` settings can add to them but cannot loosen them. Your personal conveniences and the repo's non-negotiable rules run side by side.
+
+### What this template ships in `.claude/`
+
+| File | Purpose |
+|------|---------|
+| `.claude/settings.json` | Committed, shared enforcement: blocks direct `pip` (Golden Rule #3 — uv only) and keeps commits human-authored (no agent co-author/attribution trailers). |
+| `.claude/hooks/block-pip.sh` | `PreToolUse` guard that inspects each Bash command and blocks `pip` / `pip3` / `python -m pip` while allowing `uv pip`. |
+| `.claude/settings.local.json` | *Not shipped* — your personal, per-repo overrides. Git-ignored; create it if you need to tweak behavior locally without changing the shared config. |
+
+Extend the shared config as your project grows (e.g. add a project-intrinsic MCP server via a root `.mcp.json`, keeping any credentials in your environment).
+
 ## 🚦 Workflow & Architecture
 
 To prevent documentation drift, our canonical Ideation-to-Execution workflow and architectural standards are maintained centrally:

@@ -22,6 +22,10 @@ htmlcov/
 .cursor/
 .windsurf/
 
+# Claude Code — commit the shared project config (.claude/settings.json, hooks),
+# but never the personal, per-developer override.
+.claude/settings.local.json
+
 # OS Generated
 .DS_Store
 Thumbs.db
