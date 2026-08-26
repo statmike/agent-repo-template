@@ -25,6 +25,7 @@ You are required to manage your own context using the following files. **Do not 
 
 1. **Zero Business Logic in Notebooks:** .ipynb files are strictly for narrative and execution. All core logic must live in .py files inside src/.  
 2. **Flat is Better Than Nested:** Write single-responsibility, flat Python modules. Avoid deep object-oriented inheritance.  
-3. **uv is the Law:** Manage all dependencies, environments, and lockfiles using uv. Never use pip directly.
+3. **uv is the Law:** Manage all dependencies, environments, and lockfiles using uv. Never use pip directly.  
+4. **Environment vs. Project Boundary:** Only *project-level* agent artifacts belong in this repo — enforcement of these rules (hooks/permissions) and declarations of project-intrinsic MCP servers/skills. **Never create or commit environment-level agent config** (personal settings, general-purpose skills, or any credentials); those live in the user's own environment.
 
 Remember: The human must be able to scan and understand every module within seconds. Optimize for human legibility over clever abstractions.

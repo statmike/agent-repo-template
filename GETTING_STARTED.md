@@ -61,6 +61,28 @@ All of these point to a single source of truth, [`AGENT.md`](AGENT.md). Whicheve
 
 > **⚠️ Windows & ZIP users:** These are real symlinks. They resolve correctly when you **`git clone`** on macOS/Linux or use GitHub's *"Use this template"*. On Windows, enable them with `git config --global core.symlinks true` plus Developer Mode (or an elevated shell); otherwise git checks them out as plain text stubs. Likewise, **clone the repo rather than "Download ZIP"** — ZIP extraction can flatten symlinks into stub files that break agent auto-loading.
 
+## 🧭 Environment vs. Project — What This Template Owns
+
+Agents rely on more than a directive: settings, skills, MCP servers, permissions, credentials. Most of that is **environment-level** — it's *yours*, and travels with you across every project — not something this template should ship.
+
+Two questions tell them apart:
+
+1. **Does it depend on *this* project's domain?** (or is it useful everywhere you code)
+2. **Would another developer cloning this repo need the *identical* thing?** (or do they bring their own)
+
+If either points to "general" or "mine," it's environment-level and does **not** belong in this repo.
+
+| Environment-level (yours — not here) | Project-level (lives in this repo) |
+|---|---|
+| Personal/general MCP servers (filesystem, web search) | MCP servers intrinsic to this project — *declared here, credentials in your env* |
+| Reusable skills ("write good commits", "run tests") | Skills for this project's domain (e.g. "deploy this service") |
+| Global settings, editor prefs, permission allowlists you reuse everywhere | Hooks/permissions that enforce *this repo's* golden rules |
+| API keys & credentials | *(never here — always your environment / ADC)* |
+
+**Environment-level config → keep your own agent-config repo.** A personal "dotfiles for your agent" repo (your `~/.claude/` settings, personal skills, general MCP servers) lets you replicate your setup across every machine you work on. That's a pattern you can adopt separately — this template neither provides nor depends on it.
+
+**Project-level config → this template carries a thin slice only:** enforcement of the golden rules (hooks/permissions) and *example declarations* of project-intrinsic MCP servers/skills. Credentials always stay in your environment (see [GCP authentication](#2-gcp-authentication-adc-only)).
+
 ## 🚦 Workflow & Architecture
 
 To prevent documentation drift, our canonical Ideation-to-Execution workflow and architectural standards are maintained centrally:
