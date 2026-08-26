@@ -50,3 +50,6 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
+# Makes flat modules in src/ importable by name from tests (e.g. `from bq_client
+# import run_query`) without packaging or installing the project.
+pythonpath = ["src"]

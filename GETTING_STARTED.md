@@ -27,6 +27,7 @@ Right after creating your repo from the template, do this one-time housekeeping 
 - [ ] **Confirm the Python version** in [`.python-version`](.python-version) matches what you want (`uv` honors it).
 - [ ] **Lock dependencies** — run `uv sync` once so `uv.lock` reflects your machine.
 - [ ] **Write your brief** in [`IDEA.md`](IDEA.md) (see step 3 above) — the template ships it empty.
+- [ ] **Delete the example code** — `src/example.py` and `tests/test_example.py` are throwaway samples that demonstrate the flat-module + `tests/`-imports-`src/` pattern and give you a green CI run out of the box. Remove them once your own modules exist.
 - [ ] **Leave the guardrails** in [`.claude/`](.claude/) in place (pip block, ADC-only, no-attribution) unless you have a reason to change them — see *Environment vs. Project* below.
 - [ ] The agent will **rewrite `README.md`** during the Documentation Phase — you don't need to touch it now.
 
