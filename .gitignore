@@ -34,6 +34,13 @@ Thumbs.db
 .env
 .env.*
 
+# Service Account keys must never be committed (ADC only — CODE_STANDARDS §4)
+*-key.json
+*_key.json
+service-account*.json
+*credentials*.json
+gcp-*.json
+
 # Packaging Artifacts
 *.egg-info/
 build/

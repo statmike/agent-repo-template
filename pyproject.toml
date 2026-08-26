@@ -5,3 +5,48 @@ description = "AI Native project template"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
+
+# Dev-only tooling (PEP 735). Installed by `uv sync` locally and in CI; not a
+# runtime dependency of the project.
+[dependency-groups]
+dev = [
+    "ruff>=0.9",
+    "mypy>=1.15",
+    "pytest>=8",
+]
+
+# --- Linting & formatting: enforces the "flat, human-scannable" standard -------
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# A pragmatic set that pushes toward simple, typed, flat code.
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # isort (import ordering)
+    "UP",       # pyupgrade
+    "B",        # flake8-bugbear
+    "SIM",      # flake8-simplify (discourages needless nesting/complexity)
+    "ANN",      # flake8-annotations (type hints required — CODE_STANDARDS §1)
+]
+# Notebooks are runners, not logic (Golden Rule #1) — don't lint them as modules.
+exclude = ["notebooks/"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests may skip return-type annotations on test functions.
+"tests/**" = ["ANN"]
+
+# --- Type checking: strict hints on all signatures (CODE_STANDARDS §1) ---------
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src"]
+# Third-party GCP libs often ship incomplete stubs; don't fail on their imports.
+ignore_missing_imports = true
+
+# --- Tests --------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

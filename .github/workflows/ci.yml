@@ -1,0 +1,46 @@
+name: CI
+
+# Enforces CODE_STANDARDS on every push and PR: flat, formatted, strictly-typed
+# Python, with tests. Turns the golden rules from prose into merge gates.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python (from .python-version)
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Lint (ruff)
+        run: uv run ruff check .
+
+      - name: Format check (ruff)
+        run: uv run ruff format --check .
+
+      - name: Type check (mypy)
+        # Skips until src/ has Python; fails on real type errors once it does.
+        run: |
+          if find src -name '*.py' | grep -q .; then
+            uv run mypy
+          else
+            echo "No Python in src/ yet — skipping mypy."
+          fi
+
+      - name: Tests (pytest)
+        # Tolerates "no tests collected" (exit 5) so a fresh template passes;
+        # fails on any real test failure once tests exist.
+        run: uv run pytest || { code=$?; [ "$code" -eq 5 ] && echo "No tests yet — skipping." && exit 0; exit "$code"; }

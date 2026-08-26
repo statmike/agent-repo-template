@@ -18,6 +18,18 @@ Start a new project in five steps:
    > Read `AGENT.md`, then begin the **Design phase** from `IDEA.md`.
 5. **Review the approval gate** — the agent will produce [`DESIGN.md`](DESIGN.md) (a PRD with architecture diagrams) and then **STOP**. Nothing gets built until you review and approve that design.
 
+### ✅ First-run cleanup checklist
+
+Right after creating your repo from the template, do this one-time housekeeping so your project isn't wearing the template's clothes:
+
+- [ ] **Rename the package** in [`pyproject.toml`](pyproject.toml) — set `name` and `description` to your project (the default is `agent-repo-template`).
+- [ ] **Reset the version** to `0.1.0` if you changed anything (it ships at `0.1.0`).
+- [ ] **Confirm the Python version** in [`.python-version`](.python-version) matches what you want (`uv` honors it).
+- [ ] **Lock dependencies** — run `uv sync` once so `uv.lock` reflects your machine.
+- [ ] **Write your brief** in [`IDEA.md`](IDEA.md) (see step 3 above) — the template ships it empty.
+- [ ] **Leave the guardrails** in [`.claude/`](.claude/) in place (pip block, ADC-only, no-attribution) unless you have a reason to change them — see *Environment vs. Project* below.
+- [ ] The agent will **rewrite `README.md`** during the Documentation Phase — you don't need to touch it now.
+
 ## 🔧 Environment Setup
 
 ### Prerequisites
@@ -106,8 +118,9 @@ The practical upshot for this template: because `permissions` and `hooks` **merg
 
 | File | Purpose |
 |------|---------|
-| `.claude/settings.json` | Committed, shared enforcement: blocks direct `pip` (Golden Rule #3 — uv only) and keeps commits human-authored (no agent co-author/attribution trailers). |
+| `.claude/settings.json` | Committed, shared enforcement: blocks direct `pip` (Golden Rule #3 — uv only) and Service Account key usage (CODE_STANDARDS §4 — ADC only), and keeps commits human-authored (no agent co-author/attribution trailers). |
 | `.claude/hooks/block-pip.sh` | `PreToolUse` guard that inspects each Bash command and blocks `pip` / `pip3` / `python -m pip` while allowing `uv pip`. |
+| `.claude/hooks/block-sa-keys.sh` | `PreToolUse` guard that blocks writing Service Account JSON keys or running commands that load them (`--key-file`, `activate-service-account`, `GOOGLE_APPLICATION_CREDENTIALS`). |
 | `.claude/settings.local.json` | *Not shipped* — your personal, per-repo overrides. Git-ignored; create it if you need to tweak behavior locally without changing the shared config. |
 
 Extend the shared config as your project grows (e.g. add a project-intrinsic MCP server via a root `.mcp.json`, keeping any credentials in your environment).

@@ -11,7 +11,8 @@
       "Bash(pip:*)",
       "Bash(pip3:*)",
       "Bash(python -m pip:*)",
-      "Bash(python3 -m pip:*)"
+      "Bash(python3 -m pip:*)",
+      "Bash(gcloud auth activate-service-account:*)"
     ]
   },
   "hooks": {
@@ -22,6 +23,15 @@
           {
             "type": "command",
             "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/block-pip.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/block-sa-keys.sh"
           }
         ]
       }
