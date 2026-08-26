@@ -96,24 +96,7 @@ If either points to "general" or "mine," it's environment-level and does **not**
 
 **Project-level config → this template carries a thin slice only:** enforcement of the golden rules (hooks/permissions) and *example declarations* of project-intrinsic MCP servers/skills. Credentials always stay in your environment (see [GCP authentication](#2-gcp-authentication-adc-only)).
 
-### How the two levels combine at runtime
-
-The two levels are not either/or — Claude Code **loads every level and combines them** on each run. It uses two different rules depending on the kind of setting:
-
-- **Override** — for single scalar values (`model`, `theme`, `effortLevel`), the most specific level that sets it wins.
-- **Merge (union)** — for additive resources, every level's contributions apply *together*: `permissions` (allow/deny/ask), `hooks`, `skills`, `agents`, MCP servers (`.mcp.json`), and `CLAUDE.md` memory files.
-
-**Precedence (highest → lowest)** — when a scalar is set at more than one level, higher wins:
-
-| # | Level | Path |
-|---|-------|------|
-| 1 | Enterprise / managed policy | `/etc/claude-code/managed-settings.json` (Linux) · `/Library/Application Support/ClaudeCode/managed-settings.json` (macOS) |
-| 2 | Command-line flag | `claude --settings '{…}'` |
-| 3 | Project-local (personal, per-repo) | `<repo>/.claude/settings.local.json` *(git-ignored)* |
-| 4 | **Project-shared (this template)** | `<repo>/.claude/settings.json` *(committed)* |
-| 5 | User / environment (yours) | `~/.claude/settings.json` |
-
-The practical upshot for this template: because `permissions` and `hooks` **merge** and a `deny` rule **always wins regardless of level**, the guardrails this repo ships in `.claude/settings.json` apply to everyone who clones it — and a developer's personal `~/.claude` settings can add to them but cannot loosen them. Your personal conveniences and the repo's non-negotiable rules run side by side.
+Your personal `~/.claude` settings and this repo's committed `.claude/settings.json` are loaded together, not either/or. Additive resources — `permissions`, `hooks`, skills, MCP servers — **merge**, and a `deny` rule always wins. So the guardrails this repo ships apply to everyone who clones it: your personal settings can *add* to them but cannot loosen them.
 
 ### What this template ships in `.claude/`
 
