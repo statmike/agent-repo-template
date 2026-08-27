@@ -6,21 +6,79 @@ This guide is for **humans bootstrapping a new project** from the template. It s
 
 ## 🚀 Quickstart (For Humans)
 
-Start a new project in five steps:
+This template supports **three ways to start**. Pick your scenario in **Step 1**, then **Steps 2–5 are identical** for all three — every path ends at the same place: populate `IDEA.md` and prompt the agent.
 
-1. **Create a repo from this template** — click *"Use this template"* on GitHub (or clone it).
-2. **Set up your local environment** — see [Environment Setup](#-environment-setup) below.
+### Step 1 — Get the template in place (choose one)
+
+#### A · New standalone repo
+
+For a project that gets its own GitHub repository.
+
+1. On this template's GitHub page, click **"Use this template" → "Create a new repository"**.
+2. Clone your new repo locally:
+   ```bash
+   git clone https://github.com/<you>/<your-new-repo>
+   ```
+   *(macOS/Linux recreate the agent symlinks automatically; Windows — see the note in [AI Agent Setup](#-ai-agent-setup).)*
+
+Everything is tracked and CI runs on push. **Go to Step 2.**
+
+#### B · Monorepo folder — agent files *not* tracked
+
+A self-contained project folder inside a larger monorepo, where the AI harness is **local tooling only** (fast, single-player projects). Only `README.md` and your project code get committed.
+
+1. Copy the template into your subfolder and drop its git history:
+   ```bash
+   git clone https://github.com/statmike/agent-repo-template <monorepo>/path/to/cell
+   rm -rf <monorepo>/path/to/cell/.git
+   ```
+2. Remove the repo-only CI (a monorepo runs CI from its own root):
+   ```bash
+   rm -rf <monorepo>/path/to/cell/.github
+   ```
+3. Keep the harness untracked — append this to the cell's `.gitignore`:
+   ```gitignore
+   # Agent harness — local tooling, not tracked (README stays tracked)
+   AGENT.md
+   AGENTS.md
+   CLAUDE.md
+   .cursorrules
+   .windsurfrules
+   .claude/
+   CODE_STANDARDS.md
+   GETTING_STARTED.md
+   IDEA.md
+   DESIGN.md
+   DEV_NOTES.md
+   ROADMAP.md
+   ```
+
+The harness still works locally (hooks and symlinks run off the filesystem, not git), but it is **not shared** — enforcement and design history stay on your machine. **Go to Step 2.**
+
+#### C · Monorepo folder — agent files tracked
+
+Same as B, but the AI harness is **committed** so it's shared across the monorepo.
+
+1. Copy in and strip history, exactly as in **B steps 1–2** (clone into the subfolder, then `rm -rf .git` and `.github`).
+2. Commit the folder to your monorepo as-is — the harness comes along, and its guardrails apply to everyone.
+   *(Windows collaborators: the committed symlinks need the setup in [AI Agent Setup](#-ai-agent-setup).)*
+
+**Go to Step 2.**
+
+### Steps 2–5 — The same for every scenario
+
+2. **Set up your environment** — see [Environment Setup](#-environment-setup) below (`uv sync` + gcloud ADC).
 3. **Develop your brief** — this is the highest-leverage step, so invest in it. The quality of everything downstream (the design, the architecture, the code) is bounded by the quality of what you put in [`IDEA.md`](IDEA.md). Don't just jot a one-liner:
    - **Think it through deeply** — the problem you're solving, who it's for, constraints, success criteria, non-goals, and any GCP services or data sources you expect to involve.
    - **Use an AI thought-partner to go wide first** — take your raw notes into a conversational model (e.g. Claude or Gemini) and have it *research the space, challenge your assumptions, surface risks and alternatives, and canvas ideas* with you. Iterate until the concept is sharp.
    - **Distill, then paste** — consolidate that exploration into a coherent starting brief and paste the result into `IDEA.md`. The agent will turn this into a formal `DESIGN.md`, so the richer and clearer the brief, the better the design.
-4. **Open your AI agent in this folder** and give it the starter prompt:
+4. **Open your AI agent in the project folder** (for a monorepo cell, `cd` into it first so its `.claude/` guardrails activate) and give it the starter prompt:
    > Read `AGENT.md`, then begin the **Design phase** from `IDEA.md`.
 5. **Review the approval gate** — the agent will produce [`DESIGN.md`](DESIGN.md) (a PRD with architecture diagrams) and then **STOP**. Nothing gets built until you review and approve that design.
 
 ### ✅ First-run cleanup checklist
 
-Right after creating your repo from the template, do this one-time housekeeping so your project isn't wearing the template's clothes:
+Right after setting up your project folder (any scenario above), do this one-time housekeeping so your project isn't wearing the template's clothes:
 
 - [ ] **Rename the package** in [`pyproject.toml`](pyproject.toml) — set `name` and `description` to your project (the default is `agent-repo-template`).
 - [ ] **Reset the version** to `0.1.0` if you changed anything (it ships at `0.1.0`).
