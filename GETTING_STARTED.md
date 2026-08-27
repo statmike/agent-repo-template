@@ -12,14 +12,23 @@ This template supports **three ways to start**. Pick your scenario in **Step 1**
 
 #### A · New standalone repo
 
-For a project that gets its own GitHub repository.
+For a project that gets its own GitHub repository. Use either the GitHub UI or the `gh` CLI.
+
+**Option 1 — GitHub UI**
 
 1. On this template's GitHub page, click **"Use this template" → "Create a new repository"**.
 2. Clone your new repo locally:
    ```bash
    git clone https://github.com/<you>/<your-new-repo>
    ```
-   *(macOS/Linux recreate the agent symlinks automatically; Windows — see the note in [AI Agent Setup](#-ai-agent-setup).)*
+
+**Option 2 — `gh` CLI** (creates the repo from the template and clones it in one step)
+
+```bash
+gh repo create <your-new-repo> --template statmike/agent-repo-template --private --clone
+```
+
+Either way, macOS/Linux recreate the agent symlinks automatically; Windows — see the note in [AI Agent Setup](#-ai-agent-setup).
 
 Everything is tracked and CI runs on push. **Go to Step 2.**
 
@@ -57,10 +66,18 @@ The harness still works locally (hooks and symlinks run off the filesystem, not 
 
 #### C · Monorepo folder — agent files tracked
 
-Same as B, but the AI harness is **committed** so it's shared across the monorepo.
+A self-contained project folder inside a larger monorepo, with the AI harness **committed** so its guardrails are shared across the monorepo.
 
-1. Copy in and strip history, exactly as in **B steps 1–2** (clone into the subfolder, then `rm -rf .git` and `.github`).
-2. Commit the folder to your monorepo as-is — the harness comes along, and its guardrails apply to everyone.
+1. Copy the template into your subfolder and drop its git history:
+   ```bash
+   git clone https://github.com/statmike/agent-repo-template <monorepo>/path/to/cell
+   rm -rf <monorepo>/path/to/cell/.git
+   ```
+2. Remove the repo-only CI (a monorepo runs CI from its own root):
+   ```bash
+   rm -rf <monorepo>/path/to/cell/.github
+   ```
+3. Commit the folder to your monorepo as-is — the harness comes along, and its guardrails apply to everyone.
    *(Windows collaborators: the committed symlinks need the setup in [AI Agent Setup](#-ai-agent-setup).)*
 
 **Go to Step 2.**
