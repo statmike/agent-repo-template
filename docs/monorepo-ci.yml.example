@@ -1,0 +1,82 @@
+# Monorepo CI for one cell — copy this into your MONOREPO ROOT
+# `.github/workflows/` (e.g. as `ci-<cell>.yml`).
+#
+# Scenarios B and C in GETTING_STARTED.md delete the cell's own `.github/`,
+# which also deletes the ruff / format / mypy / pytest gate. This file is that
+# gate again, run from the monorepo root and scoped to the cell. It mirrors the
+# template's `.github/workflows/ci.yml` step for step.
+#
+# To adapt:
+#   1. Replace every `path/to/cell` below — the two `paths:` filters, the
+#      `defaults.run.working-directory`, and the setup-uv `working-directory`.
+#   2. Rename the workflow (`name:`) and the `cell-quality` job so several cells
+#      can coexist in one `.github/workflows/` directory.
+#
+# The `paths:` filters mean the job only runs when the cell changes. If you make
+# it a required check, note that PRs touching nothing in the cell report no run.
+#
+# If the cell is a member of a `uv` workspace (GETTING_STARTED.md -> "Monorepo
+# cells: check for a uv workspace at the root"), the steps below still work --
+# uv resolves from the workspace root and builds the venv there -- but adjust
+# two things: point `cache-dependency-glob` at the root lockfile (e.g.
+# `../../uv.lock`, resolved relative to the cell), and widen the `paths:`
+# filters to include the root `pyproject.toml` and `uv.lock`, or dependency
+# bumps will not trigger this job.
+
+name: CI — path/to/cell
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "path/to/cell/**"
+  pull_request:
+    paths:
+      - "path/to/cell/**"
+
+# Applies to every `run:` step below, so each command executes inside the cell.
+defaults:
+  run:
+    working-directory: path/to/cell
+
+jobs:
+  cell-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        # `defaults.run` does not apply to actions, so point setup-uv at the
+        # cell explicitly: that is where it looks for pyproject.toml, and it
+        # resolves `cache-dependency-glob` relative to that directory.
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          working-directory: path/to/cell
+          cache-dependency-glob: uv.lock
+
+      - name: Set up Python (from .python-version)
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Lint (ruff)
+        run: uv run ruff check .
+
+      - name: Format check (ruff)
+        run: uv run ruff format --check .
+
+      - name: Type check (mypy)
+        # Skips until src/ has Python; fails on real type errors once it does.
+        run: |
+          if find src -name '*.py' | grep -q .; then
+            uv run mypy
+          else
+            echo "No Python in src/ yet — skipping mypy."
+          fi
+
+      - name: Tests (pytest)
+        # Tolerates "no tests collected" (exit 5) so a fresh cell passes;
+        # fails on any real test failure once tests exist.
+        run: uv run pytest || { code=$?; [ "$code" -eq 5 ] && echo "No tests yet — skipping." && exit 0; exit "$code"; }

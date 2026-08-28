@@ -45,6 +45,7 @@ A self-contained project folder inside a larger monorepo, where the AI harness i
    ```bash
    rm -rf <monorepo>/path/to/cell/.github
    ```
+   This also removes the cell's quality gate and Dependabot — rebuild both at the monorepo root: see [Monorepo cells: replace the CI you just deleted](#monorepo-cells-replace-the-ci-you-just-deleted).
 3. Keep the harness untracked — append this to the cell's `.gitignore`:
    ```gitignore
    # Agent harness — local tooling, not tracked (README stays tracked)
@@ -60,6 +61,7 @@ A self-contained project folder inside a larger monorepo, where the AI harness i
    DESIGN.md
    DEV_NOTES.md
    ROADMAP.md
+   docs/monorepo-ci.yml.example
    ```
 
 4. **Keep the tracked `README.md` self-contained.** It is the only doc your monorepo collaborators will see, so it must not link to harness files that aren't committed. The template's placeholder README links to `GETTING_STARTED.md` — replace those with a link to the template itself:
@@ -83,14 +85,22 @@ A self-contained project folder inside a larger monorepo, with the AI harness **
    ```bash
    rm -rf <monorepo>/path/to/cell/.github
    ```
+   This also removes the cell's quality gate and Dependabot — rebuild both at the monorepo root: see [Monorepo cells: replace the CI you just deleted](#monorepo-cells-replace-the-ci-you-just-deleted).
 3. Commit the folder to your monorepo as-is — the harness comes along, and its guardrails apply to everyone.
    *(Windows collaborators: the committed symlinks need the setup in [AI Agent Setup](#-ai-agent-setup).)*
 
 **Go to Step 2.**
 
+#### Monorepo cells: replace the CI you just deleted
+
+Applies to both **B** and **C**. Deleting `<cell>/.github` takes the cell's only automated check with it — ruff, format check, mypy, pytest — plus Dependabot. Put both back at the monorepo root:
+
+- **CI** — copy [`docs/monorepo-ci.yml.example`](docs/monorepo-ci.yml.example) into `<monorepo>/.github/workflows/` (e.g. as `ci-<cell>.yml`), replace `path/to/cell`, and rename the job. It runs the same chain as the template's CI, scoped to the cell with a `paths:` filter and executed inside it via `defaults.run.working-directory`.
+- **Dependabot** — add an entry to `<monorepo>/.github/dependabot.yml` with `package-ecosystem: "uv"` and `directory: "/path/to/cell"` (or `directory: "/"` if the cell is a `uv` workspace member — the root holds the lockfile).
+
 #### Monorepo cells: always start your agent *inside* the cell
 
-> ⚠️ This applies to both **B** and **C**, and it fails **silently** — so it is the one thing to get right.
+> ⚠️ Applies to both **B** and **C**, and it fails **silently** — so get this one right first.
 >
 > Agent config is discovered from the directory where the session starts, and the hooks in `.claude/settings.json` resolve their paths from it (`$CLAUDE_PROJECT_DIR/.claude/hooks/…`). Launching your agent at the **monorepo root** — the natural habit in a monorepo — means the cell's `.claude/settings.json` is never loaded: no pip block, no ADC-only guard, no attribution setting. Nothing errors; you simply have no guardrails.
 >
@@ -102,6 +112,36 @@ A self-contained project folder inside a larger monorepo, with the AI harness **
 > **Verify once** after starting: run `/hooks` and confirm the two `PreToolUse` entries are listed, or ask the agent to run `pip --version` and check that it is blocked. If neither happens, you started from the wrong directory.
 >
 > Working from the monorepo root instead? Then the cell's guardrails cannot apply to that session — promote them to the monorepo's own root `.claude/settings.json` (they merge across levels; see [Environment vs. Project](#-environment-vs-project--what-this-template-owns)).
+
+#### Monorepo cells: check for a uv workspace at the root
+
+> ⚠️ Applies to both **B** and **C**, and it also fails **silently**.
+>
+> If an ancestor directory declares a `uv` **workspace** and your cell is one of its members, the cell stops being self-contained: `uv` resolves from the workspace root, so **both** of the template's pinning mechanisms are ignored. The symptoms, none of which raise an error:
+>
+> - **Wrong Python** — `uv run python -V` reports the *root's* interpreter (e.g. 3.13), not the 3.11 in the cell's `.python-version`.
+> - **Dead lockfile** — `uv lock` writes `<monorepo>/uv.lock`; the cell's `uv.lock` is never read and quietly goes stale (and it stays tracked in both **B** and **C**).
+> - **Venv in the wrong place** — `uv sync` creates `<monorepo>/.venv`, not `<cell>/.venv`, so an editor pointed at the cell's `.venv` finds nothing.
+>
+> **Check** the monorepo's root `pyproject.toml` — `uv` walks *up* from the cell, so check any `pyproject.toml` in between as well:
+>
+> ```bash
+> grep -n "tool.uv.workspace" <monorepo>/pyproject.toml
+> ```
+>
+> No match anywhere (or no root `pyproject.toml`) → nothing to do, the cell is already standalone. A match → check whether its `members` patterns cover your cell's path, and if they do, pick one:
+>
+> **(a) Keep the cell self-contained — recommended.** This is what the template promises: its own pinned interpreter, its own lockfile, its own venv. Add the cell to the workspace's `exclude` list in the root `pyproject.toml`. Paths are relative to the workspace root, and `exclude` wins over a `members` glob:
+>
+> ```toml
+> [tool.uv.workspace]
+> members = ["path/to/*"]
+> exclude = ["path/to/cell"]
+> ```
+>
+> Then re-run `uv sync` from inside the cell and confirm `<cell>/.venv` now exists and `uv run python -V` matches `.python-version`.
+>
+> **(b) Join the workspace.** Reasonable if the monorepo deliberately shares one resolution and one venv — but then stop pretending otherwise: **delete the cell's `uv.lock`** (the root's lockfile is the real one; the cell's is dead weight that will drift), and **delete the cell's `.python-version`** (or set it to the root's pin) so it isn't lying about the interpreter. If the shared interpreter differs, also update `[tool.ruff] target-version` and `[tool.mypy] python_version` in the cell's `pyproject.toml`, or you will lint for the wrong Python. Dependencies still belong in the cell's `pyproject.toml`, but a bare `uv sync` at the workspace root installs only the *root* package's dependencies — run `uv sync --all-groups` from inside the cell (it syncs the member's dependencies into the shared venv), or `uv sync --all-packages --all-groups` from the root. Point your editor at `<monorepo>/.venv`.
 
 ### Steps 2–5 — The same for every scenario
 
@@ -120,10 +160,10 @@ Right after setting up your project folder (any scenario above), do this one-tim
 
 - [ ] **Rename the package** in [`pyproject.toml`](pyproject.toml) — set `name` and `description` to your project (the default is `agent-repo-template`).
 - [ ] **Reset the version** to `0.1.0` if you changed anything (it ships at `0.1.0`).
-- [ ] **Confirm the Python version** in [`.python-version`](.python-version) matches what you want (`uv` honors it).
+- [ ] **Confirm the Python version** in [`.python-version`](.python-version) matches what you want (`uv` honors it — *unless* the cell sits inside a `uv` workspace; see [the workspace check](#monorepo-cells-check-for-a-uv-workspace-at-the-root)).
 - [ ] **Lock dependencies** — run `uv sync` once so `uv.lock` reflects your machine.
 - [ ] **Write your brief** in [`IDEA.md`](IDEA.md) (see step 3 above) — the template ships it empty.
-- [ ] **Delete the example code** — `src/example.py` and `tests/test_example.py` are throwaway samples that demonstrate the flat-module + `tests/`-imports-`src/` pattern and give you a green CI run out of the box. Remove them once your own modules exist.
+- [ ] **Delete the example code** — `src/example.py` and `tests/test_example.py` are throwaway samples that demonstrate the flat-module + `tests/`-imports-`src/` pattern; in scenario A — and in B or C once you add the monorepo workflow — they also give you a green CI run out of the box. Remove them once your own modules exist.
 - [ ] **Leave the guardrails** in [`.claude/`](.claude/) in place (pip block, ADC-only, no-attribution) unless you have a reason to change them — see *Environment vs. Project* below.
 - [ ] The agent will **rewrite `README.md`** during the Documentation Phase — you don't need to touch it now.
 
@@ -192,7 +232,7 @@ If either points to "general" or "mine," it's environment-level and does **not**
 
 **Project-level config → this template carries a thin slice only:** enforcement of the golden rules (hooks/permissions) and *example declarations* of project-intrinsic MCP servers/skills. Credentials always stay in your environment (see [GCP authentication](#2-gcp-authentication-adc-only)).
 
-Your personal `~/.claude` settings and this repo's committed `.claude/settings.json` are loaded together, not either/or. Additive resources — `permissions`, `hooks`, skills, MCP servers — **merge**, and a `deny` rule always wins. So the guardrails this repo ships apply to everyone who clones it: your personal settings can *add* to them but cannot loosen them.
+Your personal `~/.claude` settings and this repo's committed `.claude/settings.json` are loaded together, not either/or. Additive resources — `permissions`, `hooks`, skills, MCP servers — **merge**, and a `deny` rule always wins. So wherever `.claude/` is tracked (scenario A or C), the guardrails this repo ships apply to everyone who clones it: your personal settings can *add* to them but cannot loosen them.
 
 ### What this template ships in `.claude/`
 
