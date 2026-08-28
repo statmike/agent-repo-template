@@ -62,6 +62,12 @@ A self-contained project folder inside a larger monorepo, where the AI harness i
    ROADMAP.md
    ```
 
+4. **Keep the tracked `README.md` self-contained.** It is the only doc your monorepo collaborators will see, so it must not link to harness files that aren't committed. The template's placeholder README links to `GETTING_STARTED.md` — replace those with a link to the template itself:
+   ```markdown
+   Built from the [AI-Native Project Harness](https://github.com/statmike/agent-repo-template).
+   ```
+   Then add a short **Setup** section inline (`uv sync`, plus `gcloud auth application-default login`) rather than pointing at the untracked guide. The agent follows the same rule when it rewrites the README — see `AGENT.md` → *Documentation Phase*.
+
 The harness still works locally (hooks and symlinks run off the filesystem, not git), but it is **not shared** — enforcement and design history stay on your machine. **Go to Step 2.**
 
 #### C · Monorepo folder — agent files tracked
@@ -82,6 +88,21 @@ A self-contained project folder inside a larger monorepo, with the AI harness **
 
 **Go to Step 2.**
 
+#### Monorepo cells: always start your agent *inside* the cell
+
+> ⚠️ This applies to both **B** and **C**, and it fails **silently** — so it is the one thing to get right.
+>
+> Agent config is discovered from the directory where the session starts, and the hooks in `.claude/settings.json` resolve their paths from it (`$CLAUDE_PROJECT_DIR/.claude/hooks/…`). Launching your agent at the **monorepo root** — the natural habit in a monorepo — means the cell's `.claude/settings.json` is never loaded: no pip block, no ADC-only guard, no attribution setting. Nothing errors; you simply have no guardrails.
+>
+> ```bash
+> cd <monorepo>/path/to/cell   # ← then start the agent, from here
+> claude
+> ```
+>
+> **Verify once** after starting: run `/hooks` and confirm the two `PreToolUse` entries are listed, or ask the agent to run `pip --version` and check that it is blocked. If neither happens, you started from the wrong directory.
+>
+> Working from the monorepo root instead? Then the cell's guardrails cannot apply to that session — promote them to the monorepo's own root `.claude/settings.json` (they merge across levels; see [Environment vs. Project](#-environment-vs-project--what-this-template-owns)).
+
 ### Steps 2–5 — The same for every scenario
 
 2. **Set up your environment** — see [Environment Setup](#-environment-setup) below (`uv sync` + gcloud ADC).
@@ -89,7 +110,7 @@ A self-contained project folder inside a larger monorepo, with the AI harness **
    - **Think it through deeply** — the problem you're solving, who it's for, constraints, success criteria, non-goals, and any GCP services or data sources you expect to involve.
    - **Use an AI thought-partner to go wide first** — take your raw notes into a conversational model (e.g. Claude or Gemini) and have it *research the space, challenge your assumptions, surface risks and alternatives, and canvas ideas* with you. Iterate until the concept is sharp.
    - **Distill, then paste** — consolidate that exploration into a coherent starting brief and paste the result into `IDEA.md`. The agent will turn this into a formal `DESIGN.md`, so the richer and clearer the brief, the better the design.
-4. **Open your AI agent in the project folder** (for a monorepo cell, `cd` into it first so its `.claude/` guardrails activate) and give it the starter prompt:
+4. **Open your AI agent in the project folder** — for a monorepo cell (B or C) you *must* `cd` into the cell first, or its guardrails silently never load; see [the warning above](#monorepo-cells-always-start-your-agent-inside-the-cell). Give it the starter prompt:
    > Read `AGENT.md`, then begin the **Design phase** from `IDEA.md`.
 5. **Review the approval gate** — the agent will produce [`DESIGN.md`](DESIGN.md) (a PRD with architecture diagrams) and then **STOP**. Nothing gets built until you review and approve that design.
 

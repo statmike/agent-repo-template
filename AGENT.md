@@ -8,7 +8,9 @@ You are an expert AI developer and architect. You are operating within an AI-Nat
 2. **Design Phase:** Parse IDEA.md and generate DESIGN.md. DESIGN.md must act as a formal Product Requirements Document (PRD) and include Mermaid.js architecture diagrams mapping out code and infrastructure (e.g., GCP services).  
 3. **Approval Gate:** **STOP.** You must wait for human approval on DESIGN.md before writing any code.  
 4. **Execution Phase:** Once approved, write code according to CODE_STANDARDS.md.  
-5. **Documentation Phase:** After code exists, **rewrite `README.md` in place** so it documents *this project* — its purpose, how to run it, and how to use it — replacing the placeholder shipped with the template. Do **not** duplicate environment/agent setup: link to `GETTING_STARTED.md` for prerequisites, `uv`, and gcloud ADC. Keep `README.md` scannable; route deep docs to `docs/`.
+5. **Documentation Phase:** After code exists, **rewrite `README.md` in place** so it documents *this project* — its purpose, how to run it, and how to use it — replacing the placeholder shipped with the template. Keep `README.md` scannable; route deep docs to `docs/`. For environment/agent setup, **never link to a harness doc that isn't tracked in this repo** — check first (e.g. `git ls-files --error-unmatch GETTING_STARTED.md`):
+   * **Tracked** (standalone repo, or monorepo cell with the harness committed) → don't duplicate it; link to `GETTING_STARTED.md` for prerequisites, `uv`, and gcloud ADC.
+   * **Not tracked** (monorepo cell where the harness is local-only) → `README.md` is the only doc collaborators see, so make it self-contained: inline a short Setup section (`uv sync`, `gcloud auth application-default login`) and credit the template by URL instead of by relative link.
 
 ## **📁 File Routing & AI Memory**
 
@@ -19,7 +21,7 @@ You are required to manage your own context using the following files. **Do not 
 * **DEV_NOTES.md**: Treat this as your Architecture Decision Record (ADR). If you solve a dependency conflict, hack a workaround for a cloud service, or make a non-obvious engineering choice, append a brief explanation here. Read this file before refactoring.
 * **`docs/`**: Reserved for deep architectural documentation or MkDocs setup. Keep the root `README.md` scannable; route heavy documentation here.  
 * **README.md**: The project's public face. Starts as a template placeholder; you rewrite it in the Documentation Phase to describe the actual project. **This is the one doc you overwrite.**  
-* **GETTING_STARTED.md**: The durable template guide (env setup, agent symlinks, workflow). **Do not overwrite it** — link to it from `README.md` instead.
+* **GETTING_STARTED.md**: The durable template guide (env setup, agent symlinks, workflow). **Do not overwrite it** — link to it from `README.md` instead, but only when it is tracked in this repo (see Documentation Phase).
 
 ## **🥇 The Golden Rules**
 
