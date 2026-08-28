@@ -15,6 +15,7 @@
       "Bash(gcloud auth activate-service-account:*)"
     ]
   },
+  "$comment_hooks": "Hook commands run through a shell, so the $CLAUDE_PROJECT_DIR expansion must stay double-quoted. Unquoted, a project path containing spaces (common for a monorepo cell, e.g. 'Applied ML/AI Agents/...') word-splits and the hook dies with exit 127 — which is not exit 2, so nothing is blocked and the guardrails silently do nothing. Do not remove the quotes.",
   "hooks": {
     "PreToolUse": [
       {
@@ -22,7 +23,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/block-pip.sh"
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/block-pip.sh\""
           }
         ]
       },
@@ -31,7 +32,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/block-sa-keys.sh"
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/block-sa-keys.sh\""
           }
         ]
       }
