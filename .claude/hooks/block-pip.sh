@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PreToolUse (Bash) guard — enforces Golden Rule #3: "uv is the Law."
+# PreToolUse (Bash) guard — enforces Golden Rule #4: "uv is the Law."
 #
 # Blocks direct pip usage (pip, pip3, python -m pip) because this project manages
 # all dependencies and environments with uv. `uv pip ...` is explicitly allowed,
@@ -25,7 +25,7 @@ if printf '%s' "$command" | grep -Eq '(^|[;&|`(]|[[:space:]])(pip[0-9.]*|python[
   if printf '%s' "$command" | grep -Eq '(^|[;&|`(]|[[:space:]])uv[[:space:]]+pip'; then
     exit 0
   fi
-  echo "BLOCKED: direct pip use is not allowed in this project (Golden Rule #3: 'uv is the Law')." >&2
+  echo "BLOCKED: direct pip use is not allowed in this project (Golden Rule #4: 'uv is the Law')." >&2
   echo "Use uv instead — e.g. 'uv add <pkg>', 'uv sync', 'uv run ...', or 'uv pip ...'." >&2
   exit 2
 fi

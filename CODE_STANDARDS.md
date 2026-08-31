@@ -7,6 +7,10 @@ This document defines the strict engineering standards for this repository. The 
 * **Single Responsibility:** Each `.py` file in `src/` should do exactly one thing (e.g., `bq_client.py`, `data_cleaner.py`).  
 * **Avoid Deep OOP:** Do not create deep class hierarchies (e.g., `AbstractBaseDataProcessor`). Prefer procedural, functional programming with simple data structures (dataclasses, dicts).  
 * **Human-Scannable:** A human developer should be able to open any module and understand its purpose top-to-bottom in under 30 seconds.  
+* **Shallow Cross-References:** Understanding one module must not require opening a chain of others. If reading `a.py` sends the reader to `b.py` which sends them to `c.py`, collapse it — at most **one hop** to follow.  
+* **Fewer, Fuller Modules:** Prefer a handful of well-named modules over many fragments. Split only for a genuinely distinct responsibility — never merely to shrink a file. Cohesion beats granularity; "single responsibility" is not a mandate to fragment.  
+* **One-Way Dependencies:** No circular imports. Leaf modules (clients, I/O) must never import orchestration modules; calls flow down, data flows back up.  
+* **No Grab-Bags:** Never create `utils.py`, `helpers.py`, or `common.py`. A little duplication is better than a shared-helper web that binds every module together.  
 * **Type Hinting:** Use strict Python type hinting for all function signatures.
 
 ## **📦 2. Dependency Management: `uv`**

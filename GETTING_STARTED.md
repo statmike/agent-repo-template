@@ -239,7 +239,7 @@ Your personal `~/.claude` settings and this repo's committed `.claude/settings.j
 
 | File | Purpose |
 |------|---------|
-| `.claude/settings.json` | Committed, shared enforcement: blocks direct `pip` (Golden Rule #3 — uv only) and Service Account key usage (CODE_STANDARDS §4 — ADC only), and keeps commits human-authored (no agent co-author/attribution trailers). |
+| `.claude/settings.json` | Committed, shared enforcement: blocks direct `pip` (Golden Rule #4 — uv only) and Service Account key usage (CODE_STANDARDS §4 — ADC only), and keeps commits human-authored (no agent co-author/attribution trailers). |
 | `.claude/hooks/block-pip.sh` | `PreToolUse` guard that inspects each Bash command and blocks `pip` / `pip3` / `python -m pip` while allowing `uv pip`. |
 | `.claude/hooks/block-sa-keys.sh` | `PreToolUse` guard that blocks writing Service Account JSON keys or running commands that load them (`--key-file`, `activate-service-account`, `GOOGLE_APPLICATION_CREDENTIALS`). |
 | `.claude/settings.local.json` | *Not shipped* — your personal, per-repo overrides. Git-ignored; create it if you need to tweak behavior locally without changing the shared config. |
