@@ -25,7 +25,10 @@ This document defines the strict engineering standards for this repository. The 
 * Notebooks live in the `notebooks/` directory.  
 * **Prohibition:** NEVER author core business logic, complex data transformations, or API integrations inside a notebook cell.  
 * **Intended Use:** Notebooks are exclusively for narrative documentation, data exploration, and acting as "runners." They must `import` their capabilities from the `src/` directory.  
-* The notebook kernel must be driven by the local `uv` environment.
+* The notebook kernel must be driven by the local `uv` environment.  
+* **Outputs Are Committed On Purpose:** A notebook is an *illustration* — inline markdown plus the real results of calling `src/`. Its outputs are part of that illustration, so they are committed, never stripped. A reader must be able to see what the code produces without running it.  
+* **Outputs Must Match The Code They Call:** That makes a stale output a lie about present behavior. When you change a module a notebook imports, **re-run the notebook top to bottom** and commit the refreshed outputs in the same change. A notebook showing results from an older `src/` is the same defect as a doc written in past tense (§5).  
+* **Run In Order, Run Completely:** Ship notebooks that execute cleanly from a fresh kernel, cell 1 to cell N. No scattered execution counts from re-running one cell, no half-executed notebooks, no cells left erroring.
 
 ## **☁️ 4. GCP & Infrastructure**
 
