@@ -19,6 +19,11 @@ dev = [
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# Notebooks are runners, not logic (Golden Rule #1) — don't lint or format them as
+# modules. `extend-exclude` at this level adds to ruff's built-in excludes and
+# covers both the linter and the formatter; a bare `lint.exclude` would replace the
+# built-ins (linting build/, dist/, …) and leave the formatter checking notebooks.
+extend-exclude = ["notebooks/"]
 
 [tool.ruff.lint]
 # A pragmatic set that pushes toward simple, typed, flat code.
@@ -35,12 +40,12 @@ select = [
     "FIX",      # flake8-fixme (no inline TODO/FIXME/XXX/HACK — park them in STATUS.md)
     "ARG",      # flake8-unused-arguments (orphans from abandoned code paths)
 ]
-# Notebooks are runners, not logic (Golden Rule #1) — don't lint them as modules.
-exclude = ["notebooks/"]
 
 [tool.ruff.lint.per-file-ignores]
-# Tests may skip return-type annotations on test functions.
-"tests/**" = ["ANN"]
+# Tests may skip return-type annotations on test functions, and pytest fixtures
+# are often requested for their side effects (caplog, monkeypatch) without being
+# referenced in the body — that is not an orphaned argument.
+"tests/**" = ["ANN", "ARG"]
 
 # --- Type checking: strict hints on all signatures (CODE_STANDARDS §1) ---------
 [tool.mypy]

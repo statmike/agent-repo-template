@@ -23,6 +23,10 @@ Whichever you pick, you end at the same place — populate `IDEA.md` and prompt 
 
 _Describe what this project does once the design is approved and code exists._
 
+## Status
+
+Where this project stands and where it is going: **[STATUS.md](STATUS.md)**.
+
 ## Getting Started
 
 See **[GETTING_STARTED.md](GETTING_STARTED.md)** for prerequisites, environment setup (`uv` + gcloud ADC), and the AI agent workflow.

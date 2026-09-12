@@ -43,7 +43,11 @@ jobs:
             fi
             [ -e "$p" ] && targets="$targets $p"
           done
-          if [ -n "$targets" ] && grep -rIn -E '\b(DESIGN|IDEA)\.md\b' $targets; then
+          # Scoped to prose and code. A line that must legitimately name these
+          # files (a doc about the harness itself) can opt out with a trailing
+          # `doctrine-exempt` comment.
+          if [ -n "$targets" ] && grep -rIn --include='*.md' --include='*.py' --include='*.ipynb' \
+               -E '\b(DESIGN|IDEA)\.md\b' $targets | grep -v 'doctrine-exempt'; then
             echo "::error::Shipped artifacts must not reference DESIGN.md or IDEA.md (AGENT.md Golden Rule #6). Move the content to DEV_NOTES.md or STATUS.md."
             exit 1
           fi
