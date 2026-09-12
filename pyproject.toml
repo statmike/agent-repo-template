@@ -30,6 +30,10 @@ select = [
     "B",        # flake8-bugbear
     "SIM",      # flake8-simplify (discourages needless nesting/complexity)
     "ANN",      # flake8-annotations (type hints required — CODE_STANDARDS §1)
+    # Current-state hygiene (CODE_STANDARDS §5) — keeps iteration residue out of the repo.
+    "ERA",      # eradicate (no commented-out code)
+    "FIX",      # flake8-fixme (no inline TODO/FIXME/XXX/HACK — park them in STATUS.md)
+    "ARG",      # flake8-unused-arguments (orphans from abandoned code paths)
 ]
 # Notebooks are runners, not logic (Golden Rule #1) — don't lint them as modules.
 exclude = ["notebooks/"]

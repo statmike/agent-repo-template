@@ -28,6 +28,27 @@ jobs:
       - name: Lint (ruff)
         run: uv run ruff check .
 
+      - name: Current-state doctrine (no design-doc references)
+        # Shipped artifacts describe the system as it is now. IDEA.md and DESIGN.md
+        # are snapshots of intent at a moment — once built, the code is the spec.
+        # A reference to them means history leaked into current-state material.
+        run: |
+          targets=""
+          for p in README.md STATUS.md docs src tests notebooks; do
+            # The un-rewritten template README points newcomers at IDEA.md on purpose.
+            # It carries an ABOUT THIS TEMPLATE marker that the agent removes when it
+            # rewrites the file in the Documentation Phase; until then, skip it.
+            if [ "$p" = "README.md" ] && grep -q 'ABOUT THIS TEMPLATE' README.md 2>/dev/null; then
+              continue
+            fi
+            [ -e "$p" ] && targets="$targets $p"
+          done
+          if [ -n "$targets" ] && grep -rIn -E '\b(DESIGN|IDEA)\.md\b' $targets; then
+            echo "::error::Shipped artifacts must not reference DESIGN.md or IDEA.md (AGENT.md Golden Rule #6). Move the content to DEV_NOTES.md or STATUS.md."
+            exit 1
+          fi
+          echo "No design-doc references in shipped artifacts."
+
       - name: Format check (ruff)
         run: uv run ruff format --check .
 

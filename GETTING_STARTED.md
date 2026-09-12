@@ -60,9 +60,9 @@ A self-contained project folder inside a larger monorepo, where the AI harness i
    IDEA.md
    DESIGN.md
    DEV_NOTES.md
-   ROADMAP.md
    docs/monorepo-ci.yml.example
    ```
+   *(`STATUS.md` is deliberately **not** listed — like `README.md`, it is current-state and shareable, so it stays tracked even when the rest of the harness is local-only.)*
 
 4. **Keep the tracked `README.md` self-contained.** It is the only doc your monorepo collaborators will see, so it must not link to harness files that aren't committed. The template's placeholder README links to `GETTING_STARTED.md` — replace those with a link to the template itself:
    ```markdown
@@ -166,7 +166,7 @@ Right after setting up your project folder (any scenario above), do this one-tim
 - [ ] **Write your brief** in [`IDEA.md`](IDEA.md) (see step 3 above) — the template ships it empty.
 - [ ] **Delete the example code** — `src/example.py` and `tests/test_example.py` are throwaway samples that demonstrate the flat-module + `tests/`-imports-`src/` pattern; in scenario A — and in B or C once you add the monorepo workflow — they also give you a green CI run out of the box. Remove them once your own modules exist.
 - [ ] **Leave the guardrails** in [`.claude/`](.claude/) in place (pip block, ADC-only, no-attribution) unless you have a reason to change them — see *Environment vs. Project* below.
-- [ ] The agent will **rewrite `README.md`** during the Documentation Phase — you don't need to touch it now.
+- [ ] The agent will **rewrite `README.md`** during the Documentation Phase and keep [`STATUS.md`](STATUS.md) current at the end of every iteration — you don't need to touch either now.
 
 ## 🔧 Environment Setup
 
@@ -253,4 +253,16 @@ To prevent documentation drift, our canonical Ideation-to-Execution workflow and
 - **Workflow & Core Directives:** see [`AGENT.md`](AGENT.md).
 - **Engineering & GCP Standards:** see [`CODE_STANDARDS.md`](CODE_STANDARDS.md).
 
-Deeper architectural documentation lives in [`docs/`](docs/); ongoing decisions are logged in `DEV_NOTES.md`, and out-of-scope ideas are parked in `ROADMAP.md`.
+Deeper architectural documentation lives in [`docs/`](docs/), and ongoing decisions are logged in `DEV_NOTES.md`.
+
+### Current state vs. history
+
+The harness keeps a deliberate split so a project stays near-shareable while you iterate on it:
+
+| File | Kind | How it is written |
+|------|------|-------------------|
+| [`STATUS.md`](STATUS.md) | **Current-state** | The single answer to *where is this at, where is it going* — *Current State*, *Now*, *Next*, *Later*, *Known Gaps*. **Rewritten in place**, present tense. Tracked and shareable in all three scenarios. |
+| `DEV_NOTES.md` | **Stream** | The ADR / diary. **Appended** to, never rewritten — dated decisions, workarounds, rejected approaches. |
+| `IDEA.md`, `DESIGN.md` | **Snapshots of intent** | Historical once built. Shipped artifacts must never reference them; the code is the spec. |
+
+Each iteration ends with the **Consolidation Phase** (`AGENT.md` step 7): the agent harvests stray notes into `DEV_NOTES.md` or `STATUS.md`, removes them from the code and docs, and rewrites `STATUS.md` to match reality. CI backs this up — ruff `ERA`/`FIX`/`ARG` reject commented-out code, inline `TODO`/`FIXME` backlog, and orphaned arguments, and a grep step rejects `DESIGN.md`/`IDEA.md` references in shipped files.

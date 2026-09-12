@@ -33,3 +33,13 @@ This document defines the strict engineering standards for this repository. The 
 * **Custom Containers:** When generating Dockerfiles for GCP (Vertex AI, Cloud Run, Airflow, KFP), build them around the `uv` environment specification to ensure zero drift between local and cloud execution.  
 * Keep cloud client instantiations isolated in their own modules so they can be easily mocked during local testing.
 * **Authentication (ADC Only):** NEVER write code that loads explicit Service Account JSON keys. Local development must exclusively use Application Default Credentials (ADC) managed by the host machine (e.g., `gcloud auth application-default login`). All GCP client libraries must be initialized dynamically so they automatically inherit local ADC credentials or the attached cloud service account seamlessly. *(Enforced: `.claude/hooks/block-sa-keys.sh` blocks writing SA key files or loading them via `--key-file` / `GOOGLE_APPLICATION_CREDENTIALS`; `.gitignore` blocks committing them.)*
+
+## **🧹 5. Current-State Hygiene**
+
+The codebase describes what the system **is**, never how it got here. Iterative development leaves residue; removing it is part of finishing, not a separate cleanup project.
+
+* **No Commented-Out Code:** Delete it. Git history is the archive. *(Enforced: ruff `ERA001`.)*  
+* **No Inline Backlog:** No `TODO`, `FIXME`, `XXX`, or `HACK` comments. Work that must still happen goes in `STATUS.md` under *Now* or *Next*, where it is visible and tracked — not buried in a file nobody greps. *(Enforced: ruff `FIX`.)*  
+* **No Change-Narration Comments:** Comments explain what the code does and why it is the way it is — never what it replaced. "Switched from pandas because…" is an ADR; put it in `DEV_NOTES.md`.  
+* **No Orphans:** Remove unreachable functions, unused arguments, and flags left over from abandoned experiments. *(Enforced: ruff `ARG`, `F401`.)*  
+* **No Design-Doc References:** Code and docs must never point at `DESIGN.md` or `IDEA.md`. Those are snapshots of intent at a moment; the code is now the specification. *(Enforced in CI.)*

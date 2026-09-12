@@ -1,1 +1,0 @@
-<!-- ROADMAP.md: AI - park all out-of-scope feature ideas, optimizations, and future architectural shifts here. Do not build them yet. -->
