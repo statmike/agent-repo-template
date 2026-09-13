@@ -265,4 +265,16 @@ The harness keeps a deliberate split so a project stays near-shareable while you
 | `DEV_NOTES.md` | **Stream** | The ADR / diary. **Appended** to, never rewritten — dated decisions, workarounds, rejected approaches. |
 | `IDEA.md`, `DESIGN.md` | **Snapshots of intent** | Historical once built. Shipped artifacts must never reference them; the code is the spec. |
 
+### Sessions are disposable — the harness is the memory
+
+Treat an agent session as scratch space, not as state. The transcript is not portable (it is large, machine-local, and product-specific), and you should never need it: `STATUS.md` and `DEV_NOTES.md` exist so any fresh session can pick the project up cold. `AGENT.md` step 0 requires the agent to read them before doing anything, and to reconcile them against `git status` in case the last session ended mid-flight.
+
+Two things fall out of this, both deliberate:
+
+- **Resume anywhere.** Starting work again — tomorrow, or on another machine — needs no special prompt beyond:
+  > Read `AGENT.md` and orient yourself, then tell me where we are before doing anything.
+- **Switch agents freely.** Because every tool reads the same symlinked directive and the same two state files, moving a project from Claude Code to Antigravity (or back) mid-stream costs nothing. Nothing important lives inside one vendor's session.
+
+The corollary is a discipline: **finish every increment with the Consolidation Phase.** Work left described only in the conversation is work that is lost.
+
 Each iteration ends with the **Consolidation Phase** (`AGENT.md` step 7): the agent harvests stray notes into `DEV_NOTES.md` or `STATUS.md`, removes them from the code and docs, and rewrites `STATUS.md` to match reality. CI backs this up — ruff `ERA`/`FIX`/`ARG` reject commented-out code, inline `TODO`/`FIXME` backlog, and orphaned arguments, and a grep step rejects `DESIGN.md`/`IDEA.md` references in shipped files.

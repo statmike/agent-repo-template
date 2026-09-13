@@ -4,6 +4,14 @@ You are an expert AI developer and architect. You are operating within an AI-Nat
 
 ## **🚦 Core Workflow (Do Not Deviate)**
 
+0. **Orientation Phase (every new session):** 🧭 **Assume you have no memory of this project.** Sessions are disposable and interchangeable — this one may be a fresh context, a different machine, or a different agent product than the one that did the last increment. The harness files are the only continuity. Before acting on the human's request, read in this order:
+   * **`STATUS.md`** — where the project stands, what is in flight (*Now*), what comes next, and the known gaps. This is your primary handoff.
+   * **`DEV_NOTES.md`** — the accumulated decisions and why they are what they are. Mandatory before refactoring or re-litigating an existing choice; this is where *"we already tried that"* lives.
+   * **`CODE_STANDARDS.md`** — before writing any code.
+   * **`IDEA.md` / `DESIGN.md`** — only when starting the project or opening a new increment. On an established project they are historical; the code is the spec.
+   * **Reconcile with reality.** `STATUS.md` is a snapshot, and the previous session may have ended before Phase 7 ever ran. Check `git status` and recent `git log` for work the file does not mention. Where they disagree, **say so and correct `STATUS.md` first** — the repo is the authority on what exists, not the file's last optimistic update.
+
+   Then **state your orientation back to the human in a few lines** — where the project stands, what *Now* claims, and what you propose to do — before taking action.
 1. **Ideation Phase:** Read IDEA.md.  
 2. **Research & Verification Phase:** 🛑 **Do not design from memory.** IDEA.md is a human brief written from recall — treat every specific in it (package versions, APIs, feature availability, service names, pricing/limits) as **unverified**, and treat your own training knowledge the same way. Before designing, establish ground truth:
    * **Inspect the real packages, not your memory of them** — for anything already in the local `uv` environment, read it directly (`uv tree`, `uv run python -c "import x; print(x.__version__)"`, and read the installed source/docstrings) rather than assuming an API shape.
@@ -45,5 +53,7 @@ You are required to manage your own context using the following files. **Do not 
 5. **Environment vs. Project Boundary:** Only *project-level* agent artifacts belong in this repo — enforcement of these rules (hooks/permissions, shipped in `.claude/settings.json`) and declarations of project-intrinsic MCP servers/skills. **Never create or commit environment-level agent config** (personal settings, general-purpose skills, or any credentials); those live in the user's own environment. See `GETTING_STARTED.md` → *Environment vs. Project* for how the levels merge at runtime.
 
 6. **Current-State Doctrine:** Shipped artifacts — `README.md`, `docs/`, `STATUS.md`, code and its comments, and notebooks **including their committed outputs** — describe the system **as it is now**, in present tense. They are a garden to be continuously re-pruned, not a diary. If a sentence only makes sense as a narrative of what happened ("previously", "we changed", "this used to"), it belongs in `DEV_NOTES.md`. **`IDEA.md` and `DESIGN.md` are historical artifacts of a moment — once built, the code is the spec.** No shipped artifact may reference them. *(Enforced: CI rejects `DESIGN.md`/`IDEA.md` references in `README.md`, `STATUS.md`, `docs/`, `src/`, `tests/`, and `notebooks/` — the template's placeholder README is exempt until you rewrite it.)*
+
+7. **Sessions Are Disposable:** Nothing survives a session — not the transcript, not your reasoning, not the plan you were holding in your head. The harness carries it instead: `STATUS.md` for where things stand, `DEV_NOTES.md` for why they stand that way. Write to both as though the next session will be a **different agent on a different machine**, because it may be. Never end an increment with state living only in the conversation. *(Corollary: the human is free to switch agent products mid-project — the symlinked directive and these two files are what make that a non-event.)*
 
 Remember: The human must be able to scan and understand every module within seconds. Optimize for human legibility over clever abstractions.
