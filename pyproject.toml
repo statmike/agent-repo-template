@@ -1,7 +1,7 @@
 [project]
 name = "agent-repo-template"
 version = "0.1.0"
-description = "AI Native project template"
+description = "AI-Native project template and multi-agent harness"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
@@ -15,50 +15,45 @@ dev = [
     "pytest>=8",
 ]
 
-# --- Linting & formatting: enforces the "flat, human-scannable" standard -------
+# Pin public PyPI explicitly so `uv lock` / `uv add` never bake host-specific
+# corporate mirror URLs into `uv.lock`.
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple"
+default = true
+
+# --- Linting & formatting: enforces flat, human-scannable Python (.agents/rules/python.md) ---
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-# Notebooks are runners, not logic (Golden Rule #1) — don't lint or format them as
-# modules. `extend-exclude` at this level adds to ruff's built-in excludes and
-# covers both the linter and the formatter; a bare `lint.exclude` would replace the
-# built-ins (linting build/, dist/, …) and leave the formatter checking notebooks.
 extend-exclude = ["notebooks/"]
 
 [tool.ruff.lint]
-# A pragmatic set that pushes toward simple, typed, flat code.
 select = [
     "E", "W",   # pycodestyle
     "F",        # pyflakes
-    "I",        # isort (import ordering)
+    "I",        # isort
     "UP",       # pyupgrade
     "B",        # flake8-bugbear
-    "SIM",      # flake8-simplify (discourages needless nesting/complexity)
-    "ANN",      # flake8-annotations (type hints required — CODE_STANDARDS §1)
-    # Current-state hygiene (CODE_STANDARDS §5) — keeps iteration residue out of the repo.
+    "SIM",      # flake8-simplify
+    "ANN",      # flake8-annotations (strict type hints)
     "ERA",      # eradicate (no commented-out code)
-    "FIX",      # flake8-fixme (no inline TODO/FIXME/XXX/HACK — park them in STATUS.md)
-    "ARG",      # flake8-unused-arguments (orphans from abandoned code paths)
+    "FIX",      # flake8-fixme (no inline TODO/FIXME/XXX/HACK — track in .agents/status.md)
+    "ARG",      # flake8-unused-arguments
 ]
 
 [tool.ruff.lint.per-file-ignores]
-# Tests may skip return-type annotations on test functions, and pytest fixtures
-# are often requested for their side effects (caplog, monkeypatch) without being
-# referenced in the body — that is not an orphaned argument.
 "tests/**" = ["ANN", "ARG"]
 
-# --- Type checking: strict hints on all signatures (CODE_STANDARDS §1) ---------
+# --- Type checking: strict hints on all signatures ---
 [tool.mypy]
 python_version = "3.11"
 strict = true
 files = ["src"]
-# Third-party GCP libs often ship incomplete stubs; don't fail on their imports.
 ignore_missing_imports = true
 
-# --- Tests --------------------------------------------------------------------
+# --- Tests ---
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
-# Makes flat modules in src/ importable by name from tests (e.g. `from bq_client
-# import run_query`) without packaging or installing the project.
 pythonpath = ["src"]

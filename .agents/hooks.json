@@ -1,0 +1,30 @@
+{
+  "uv-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command|write_file|edit_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ./hooks/guard_uv.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "secrets-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command|write_file|edit_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ./hooks/guard_secrets.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

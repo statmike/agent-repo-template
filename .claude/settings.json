@@ -1,6 +1,5 @@
 {
-  "$comment": "Project-level (committed) Claude Code config for this template. Enforces the repo's golden rules and shared commit hygiene. This is UNIONED with each developer's ~/.claude settings; deny rules and hooks here always apply and cannot be loosened from user settings. Personal overrides go in .claude/settings.local.json (git-ignored).",
-  "$comment_attribution": "Keep commits authored by the human, not the agent. 'attribution' is the current key (blank commit/pr trailers); 'includeCoAuthoredBy' is the deprecated key, kept for older Claude Code versions.",
+  "$comment": "Project-level Claude Code configuration. Shares canonical rules, skills, and polyglot hook scripts with .agents/ so behavior stays identical across Claude Code and Antigravity. Personal per-repo overrides go in .claude/settings.local.json (gitignored).",
   "includeCoAuthoredBy": false,
   "attribution": {
     "commit": "",
@@ -12,27 +11,29 @@
       "Bash(pip3:*)",
       "Bash(python -m pip:*)",
       "Bash(python3 -m pip:*)",
+      "Bash(python -m venv:*)",
+      "Bash(python3 -m venv:*)",
+      "Bash(virtualenv:*)",
+      "Bash(conda:*)",
+      "Bash(mamba:*)",
+      "Bash(poetry:*)",
+      "Bash(pipenv:*)",
+      "Bash(pdm:*)",
       "Bash(gcloud auth activate-service-account:*)"
     ]
   },
-  "$comment_hooks": "Hook commands run through a shell, so the $CLAUDE_PROJECT_DIR expansion must stay double-quoted. Unquoted, a project path containing spaces (common for a monorepo cell, e.g. 'Applied ML/AI Agents/...') word-splits and the hook dies with exit 127 — which is not exit 2, so nothing is blocked and the guardrails silently do nothing. Do not remove the quotes.",
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Bash|Write|Edit|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/block-pip.sh\""
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit|Bash",
-        "hooks": [
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.agents/hooks/guard_uv.py\""
+          },
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/block-sa-keys.sh\""
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.agents/hooks/guard_secrets.py\""
           }
         ]
       }

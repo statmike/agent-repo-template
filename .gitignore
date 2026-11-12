@@ -16,15 +16,13 @@ htmlcov/
 # Jupyter Notebooks
 .ipynb_checkpoints/
 
-# IDEs & Tools
+# IDEs & Local Agent Overrides
 .vscode/
 .idea/
 .cursor/
 .windsurf/
-
-# Claude Code — commit the shared project config (.claude/settings.json, hooks),
-# but never the personal, per-developer override.
 .claude/settings.local.json
+CLAUDE.local.md
 
 # OS Generated
 .DS_Store
@@ -34,7 +32,7 @@ Thumbs.db
 .env
 .env.*
 
-# Service Account keys must never be committed (ADC only — CODE_STANDARDS §4)
+# Service Account keys must never be committed (ADC only — .agents/rules/gcp.md)
 *-key.json
 *_key.json
 service-account*.json

@@ -1,9 +1,8 @@
-"""Example module — DELETE ME once you start building.
+"""Example module — DELETE ME once real modules exist in src/.
 
-Demonstrates the standard this template enforces (CODE_STANDARDS §1): a flat,
-single-responsibility, strictly-typed module. Real logic lives here in ``src/``,
-never inside notebooks (Golden Rule #1). Delete this file and its test once your
-own modules exist.
+Demonstrates the flat, single-responsibility, strictly-typed Python standard in
+``.agents/rules/python.md``. Core logic lives here in ``src/``, never inside
+notebook cells.
 """
 
 

@@ -1,7 +1,7 @@
 name: CI
 
-# Enforces CODE_STANDARDS on every push and PR: flat, formatted, strictly-typed
-# Python, with tests. Turns the golden rules from prose into merge gates.
+# Runs the same universal quality & Current-State Doctrine gate (.agents/check.py)
+# on every push and PR that developers and agents run locally.
 
 on:
   push:
@@ -25,47 +25,5 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-groups
 
-      - name: Lint (ruff)
-        run: uv run ruff check .
-
-      - name: Current-state doctrine (no design-doc references)
-        # Shipped artifacts describe the system as it is now. IDEA.md and DESIGN.md
-        # are snapshots of intent at a moment — once built, the code is the spec.
-        # A reference to them means history leaked into current-state material.
-        run: |
-          targets=""
-          for p in README.md STATUS.md docs src tests notebooks; do
-            # The un-rewritten template README points newcomers at IDEA.md on purpose.
-            # It carries an ABOUT THIS TEMPLATE marker that the agent removes when it
-            # rewrites the file in the Documentation Phase; until then, skip it.
-            if [ "$p" = "README.md" ] && grep -q 'ABOUT THIS TEMPLATE' README.md 2>/dev/null; then
-              continue
-            fi
-            [ -e "$p" ] && targets="$targets $p"
-          done
-          # Scoped to prose and code. A line that must legitimately name these
-          # files (a doc about the harness itself) can opt out with a trailing
-          # `doctrine-exempt` comment.
-          if [ -n "$targets" ] && grep -rIn --include='*.md' --include='*.py' --include='*.ipynb' \
-               -E '\b(DESIGN|IDEA)\.md\b' $targets | grep -v 'doctrine-exempt'; then
-            echo "::error::Shipped artifacts must not reference DESIGN.md or IDEA.md (AGENT.md Golden Rule #6). Move the content to DEV_NOTES.md or STATUS.md."
-            exit 1
-          fi
-          echo "No design-doc references in shipped artifacts."
-
-      - name: Format check (ruff)
-        run: uv run ruff format --check .
-
-      - name: Type check (mypy)
-        # Skips until src/ has Python; fails on real type errors once it does.
-        run: |
-          if find src -name '*.py' | grep -q .; then
-            uv run mypy
-          else
-            echo "No Python in src/ yet — skipping mypy."
-          fi
-
-      - name: Tests (pytest)
-        # Tolerates "no tests collected" (exit 5) so a fresh template passes;
-        # fails on any real test failure once tests exist.
-        run: uv run pytest || { code=$?; [ "$code" -eq 5 ] && echo "No tests yet — skipping." && exit 0; exit "$code"; }
+      - name: Run quality & doctrine gates
+        run: uv run python .agents/check.py
