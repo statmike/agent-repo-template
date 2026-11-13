@@ -16,6 +16,11 @@ htmlcov/
 # Jupyter Notebooks
 .ipynb_checkpoints/
 
+# Local Data, Model Artifacts & Scratch Outputs (anchored at project root)
+/data/
+/artifacts/
+/outputs/
+
 # IDEs & Local Agent Overrides
 .vscode/
 .idea/

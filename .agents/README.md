@@ -70,11 +70,8 @@ cd /path/to/your-project-folder
 
 ### Steps 2–4 — Same for every scenario
 
-2. **Initialize the project (optional shortcut — `/bootstrap`):**
-   Open your agent in the project folder and say:
-   > Run the `bootstrap` skill for `<your-project-name>`.
-
-   The agent will update `pyproject.toml`, prune any unused domain rules (for example `gcp.md` or `notebooks.md` — or even strip Python if you are building a non-Python project), run `uv sync`, and verify `uv run python .agents/check.py`.
+2. **Initialize the project (`/bootstrap`):**
+   Open your agent in the project folder and run `/bootstrap` (or say *"Bootstrap this project"*). The agent asks for your project name, one-line description, workspace mode, stack rules, and license choice (proposing defaults from your folder name and Git state), replaces the template `README.md`, runs `uv sync`, verifies `uv run python .agents/check.py`, and prompts you to populate [`.agents/idea.md`](idea.md).
 
 3. **Paste your rough concept into [`.agents/idea.md`](idea.md):**
    Select-all and paste your brainstorm, rough notes, or distilled thought-partner conversation directly into [`.agents/idea.md`](idea.md) (or simply describe your idea in chat), then prompt your agent:
